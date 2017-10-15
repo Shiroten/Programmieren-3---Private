@@ -4,7 +4,7 @@ Modul vokabeltrainer.
 import random
 
 
-class Vokabeltrainer(object):
+class VokabelTrainer(object):
     """
     Grundklasse für Vokabeltrainer
     """
@@ -76,13 +76,17 @@ class Vokabeltrainer(object):
 
 if __name__ == "__main__":
     d = {'squirrel': 'Eichhörnchen', 'crocodile': 'Krokodile'}
-    vocabletrainer = Vokabeltrainer(d)
+    vocabletrainer = VokabelTrainer(d)
     vocabletrainer.add('squirrel', 'Eichhörnchen')
     print("Inhalt des Dictonary vorm Init")
     print(vocabletrainer.vocables,"\n")
 
     vocabletrainer.init()
     print("Inhalt des Dictonary nach Init")
+    print(vocabletrainer.vocables,"\n")
+
+    vocabletrainer.add('clock','Uhr')
+    print("Inhalt des Dictonary nach Add")
     print(vocabletrainer.vocables,"\n")
 
     a = input("Geben Sie die Anzahl der Dürchläufe an: ")
