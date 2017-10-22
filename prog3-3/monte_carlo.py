@@ -48,7 +48,7 @@ class MonteCarlo(Process):
     def iteration(self):
         int_x = self.getRandomNumber()
         int_y = self.getRandomNumber()
-        length = math.sqrt(int_x*int_x + int_y*int_y)
+        length = math.sqrt(int_x * int_x + int_y * int_y)
 
         if length / BORDER < 1:
             self.counter_inside = self.counter_inside + 1
@@ -90,9 +90,16 @@ class MonteCarloData(Process):
                 step_counter.append(current_counter - last_counter)
 
             if len(step_counter) != 0:
-                average_steps = np.sum(step_counter)/len(step_counter)
-                print("Remaining Time: {:0.2f} seconds".format(
-                    ((RUNS - current_counter) / average_steps) * WAITING_TIME))
+                average_steps = np.sum(step_counter) / len(step_counter)
+                remaining_time = ((RUNS - current_counter) / average_steps) * WAITING_TIME
+                remaining_time_in_minutes = int((remaining_time / 60) % 60)
+                remaining_time_in_hours = int(remaining_time / 60 / 60)
+
+                print("Remaining Time: {:0.2f} seconds ({:02d}:{:02d} HH:MM)"
+                      .format(remaining_time
+                              , remaining_time_in_hours
+                              , remaining_time_in_minutes))
+
             last_counter = self.hits[0] + self.hits[1]
             time.sleep(WAITING_TIME)
 
