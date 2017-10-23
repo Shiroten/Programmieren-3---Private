@@ -7,7 +7,7 @@ import array
 from multiprocessing import Process, Array
 
 RUNS = 2_500_000_000
-THREADS = 4
+THREADS = 8
 CYCLE = int(RUNS / THREADS)
 ACCURACY = 128
 WAITING_TIME = 0.5
@@ -83,7 +83,7 @@ class MonteCarloData(Process):
             self.output()
             current_counter = self.hits[0] + self.hits[1]
 
-            if len(step_counter) < 20:
+            if len(step_counter) < 200:
                 step_counter.append(current_counter - last_counter)
             else:
                 step_counter = step_counter[1:]
@@ -95,7 +95,7 @@ class MonteCarloData(Process):
                 remaining_time_in_minutes = int((remaining_time / 60) % 60)
                 remaining_time_in_hours = int(remaining_time / 60 / 60)
 
-                print("Remaining Time: {:0.2f} seconds ({:02d}:{:02d} HH:MM)"
+                print("Remaining Time: {:0.2f} seconds ({:02d}:{:02d} HH:MM) \n"
                       .format(remaining_time
                               , remaining_time_in_hours
                               , remaining_time_in_minutes))
