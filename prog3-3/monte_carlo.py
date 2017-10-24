@@ -1,10 +1,12 @@
-import os
+"""
+Monte Carlo
+"""
 import time
 import math
 import secrets
-import numpy as np
 import array
 from multiprocessing import Process, Array
+import numpy as np
 
 RUNS = 2_500_000_000
 THREADS = 8
@@ -15,7 +17,17 @@ BORDER = math.pow(2, ACCURACY)
 
 
 class MonteCarlo(Process):
+    """
+    Class to calculate Pi with Monte Carlo
+    """
+
     def __init__(self, hits, thread_id, thread_name):
+        """
+        init of MonteCarlo
+        :param hits: holds the number of hits and miss
+        :param thread_id: ID of the thread
+        :param thread_name: name of the thread
+        """
         super(MonteCarlo, self).__init__()
         self.hits = hits
         self.thread_id = thread_id
@@ -24,30 +36,32 @@ class MonteCarlo(Process):
         self.counter_outside = 0
 
     @staticmethod
-    def getRandomNumber():
-        return MonteCarlo.getRandomNumberSystemRandom()
-
-    @staticmethod
-    def getRandomNumberSystemRandom():
+    def secrets_randbits():
+        """
+        gets random data from secrets.randbits
+        :return:
+        """
         integer = secrets.randbits(ACCURACY)
         return integer
 
-    @staticmethod
-    def getRandomNumgerOsRandom():
-        bytes = os.getrandom(int(ACCURACY / 8))
-        integer = int.from_bytes(bytes, byteorder='big')
-        return integer
-
     def run(self):
+        """
+        starts the thread with calculation and pushing of the data
+        :return:
+        """
         for i in range(1, CYCLE):
             self.iteration()
             if i % 10000 == 0:
-                self.updateData()
-        self.updateData()
+                self.update_data()
+        self.update_data()
 
     def iteration(self):
-        int_x = self.getRandomNumber()
-        int_y = self.getRandomNumber()
+        """
+        trys to calculate py with system methods
+        :return:
+        """
+        int_x = self.secrets_randbits()
+        int_y = self.secrets_randbits()
         length = math.sqrt(int_x * int_x + int_y * int_y)
 
         if length / BORDER < 1:
@@ -55,7 +69,12 @@ class MonteCarlo(Process):
         else:
             self.counter_outside = self.counter_outside + 1
 
-    def updateData(self):
+    def update_data(self):
+        """
+        pushed the data of the single thread to monte_carlo_data
+        :param run:
+        :return:
+        """
         self.hits[0] += self.counter_inside
         self.hits[1] += self.counter_outside
 
@@ -63,6 +82,11 @@ class MonteCarlo(Process):
         self.counter_outside = 0
 
     def output(self, run):
+        """
+        prints the output with remaining run as mark of the current round
+        :param run:
+        :return:
+        """
         if self.counter_outside != 0:
             print("{} Runs: {} Pi now: {}"
                   .format(self.thread_name, run, self.counter_inside
@@ -70,11 +94,22 @@ class MonteCarlo(Process):
 
 
 class MonteCarloData(Process):
+    """
+    Class to hold data for Monte Carlo
+    """
+
     def __init__(self, hits):
+        """
+        init for Monte Carlo Data
+        """
         super(MonteCarloData, self).__init__()
         self.hits = hits
 
     def run(self):
+        """
+        prints current value of py with remaining to to completion
+        :return:
+        """
         last_counter = 0
         current_counter = self.hits[0] + self.hits[1]
         step_counter = array.array('i')
@@ -89,7 +124,9 @@ class MonteCarloData(Process):
                 step_counter = step_counter[1:]
                 step_counter.append(current_counter - last_counter)
 
-            if len(step_counter) != 0:
+            if not step_counter:
+                pass
+            else:
                 average_steps = np.sum(step_counter) / len(step_counter)
                 remaining_time = ((RUNS - current_counter) / average_steps) * WAITING_TIME
                 remaining_time_in_minutes = int((remaining_time / 60) % 60)
@@ -104,6 +141,11 @@ class MonteCarloData(Process):
             time.sleep(WAITING_TIME)
 
     def output(self):
+        """
+        prints the output with remaining run as mark of the current round
+        :param run:
+        :return:
+        """
         print("Global Pi with {:,} Values: {:0.15f}".format(
             self.hits[0]
             + self.hits[1]
@@ -113,6 +155,10 @@ class MonteCarloData(Process):
 
 
 def main():
+    """
+    calls the main function for pylint
+    :return:
+    """
     threads = []
     hits = Array('i', range(2))
     montecarlodata = MonteCarloData(hits)
@@ -124,8 +170,8 @@ def main():
         thread.start()
         threads.append(thread)
 
-    for t in threads:
-        t.join()
+    for single_thread in threads:
+        single_thread.join()
     print("Exiting Main Thread")
 
     print("Finished Pi with {:,} Values: {}".format(
